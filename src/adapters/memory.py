@@ -6,10 +6,10 @@ from ..domain.recipe import Recipe, RecipeStorage
 
 class MemoryItemStorage(ItemStorage):
 
-    def __init__(self, data=None):
+    def __init__(self, items: Optional[List[Item]] = None):
         self.storage = []
-        if data:
-            for item in data:
+        if items:
+            for item in items:
                 self.storage.append(item)
 
     def add_item(self, i: Item, unique: bool = False) -> bool:
