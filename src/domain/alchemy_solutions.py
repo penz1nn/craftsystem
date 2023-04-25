@@ -32,6 +32,9 @@ class AlchemySolution(MagicItem):
             ):
         super().__init__(name, archetypes, weight, price)
         self.potency = Potency(potency)
+        # solution can not have more than 1 archetype
+        if len(archetypes) > 1:
+            self.archetypes = [archetypes[0]]
 
     def __str__(self):
         return self.name + ' ' + str(self.potency)
