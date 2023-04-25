@@ -16,7 +16,6 @@ class CrafterRequest:
 
 
 class CrafterResponse:
-    success: bool
 
     def __init__(
             self,
