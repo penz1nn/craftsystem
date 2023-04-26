@@ -2,6 +2,7 @@ from typing import List
 
 from ..domain.item import Item, ItemStorage
 from ..domain.recipe import Recipe, RecipeStorage, ProductionCondition
+from ..domain.alchemy_solutions import Archetype, AlchemySolution
 
 
 class CrafterRequest:
@@ -40,6 +41,48 @@ class CrafterUseCase:
         self.inventory = inventory
         self.recipe_book = recipe_book
         self.conditions = conditions
+        self.add_alchemy_solutions_recipes()
+
+    def add_alchemy_solutions_recipes(self):
+        for item in self.inventory.items_list():
+            if isinstance(item, AlchemySolution):
+                for i in range(6):
+                    if i < 5:
+                        self.recipe_book.add_recipe(
+                                Recipe(
+                                    items=[AlchemySolution(
+                                        name=item.name,
+                                        archetypes=item.archetypes,
+                                        potency=i+2
+                                        )],
+                                    ingredients=[
+                                        AlchemySolution(
+                                            name=item.name,
+                                            archetypes=item.archetypes,
+                                            potency=i + 1
+                                            )
+                                        ]*3,
+                                    conditions=[]
+                                    )
+                                )
+                    if i > 0:
+                        self.recipe_book.add_recipe(
+                                Recipe(
+                                    items=[AlchemySolution(
+                                        name=item.name,
+                                        archetypes=item.archetypes,
+                                        potency=i
+                                        )] * 2,
+                                    ingredients=[
+                                        AlchemySolution(
+                                            name=item.name,
+                                            archetypes=item.archetypes,
+                                            potency=i + 1
+                                            )
+                                        ],
+                                    conditions=[]
+                                    )
+                                )
 
     def show_inventory(self) -> CrafterResponse:
         d = Item.MakeDict(self.inventory.items_list())

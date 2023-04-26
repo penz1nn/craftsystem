@@ -7,6 +7,7 @@ from ..adapters.memory import MemoryRecipeStorage as RecipeStorage
 from ..domain.item import Item
 from ..domain.recipe import Recipe, ProductionCondition
 from ..domain.alchemy import ALCHEMY, AlchemyEffect, AlchemyIngredient, Potion
+from ..domain.alchemy_solutions import Archetype, AlchemySolution
 
 
 i1 = AlchemyIngredient(
@@ -128,3 +129,19 @@ class TestCrafter(unittest.TestCase):
         req = CrafterRequest(i2.name, 1)
         self.assertTrue(c.craft(req).success)
         self.assertEqual(c.get_item_count(req).data, 2)
+
+    def test_add_alchemy_solutions_recipes(self):
+        # NOTE: may be an insufficient check?
+        item = AlchemySolution(
+                name='Agea',
+                archetypes=[
+                    Archetype('magicka')
+                    ],
+                potency=1
+                )
+        inv = ItemStorage([item])
+        c = CrafterUseCase(inv, self.rb, [])
+        req = CrafterRequest(item.name)
+        resp = c.get_recipes(req)
+        self.assertTrue(resp.success)
+        self.assertEqual(len(resp.data), 10)
