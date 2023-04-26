@@ -84,11 +84,25 @@ class CrafterUseCase:
                                     )
                                 )
 
+    def add_condition(self, req: CrafterRequest) -> CrafterResponse:
+        """
+        add a Crafting Condition (name only!)
+        """
+        p_c = ProductionCondition(req.item_name)
+        if p_c not in self.conditions:
+            self.conditions.append(
+                    p_c
+                    )
+            return CrafterResponse(True)
+        else:
+            return CrafterResponse(False)
+
+
     def show_inventory(self) -> CrafterResponse:
         d = Item.MakeDict(self.inventory.items_list())
         d_out = {}
         for item in d:
-            d_out[item.name] = d[item]
+            d_out[str(item)] = d[item]
         return CrafterResponse(d_out)
 
     def item(self, name: str) -> Item:

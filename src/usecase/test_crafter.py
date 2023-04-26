@@ -129,6 +129,16 @@ class TestCrafter(unittest.TestCase):
         req = CrafterRequest(i2.name, 1)
         self.assertTrue(c.craft(req).success)
         self.assertEqual(c.get_item_count(req).data, 2)
+        # try to craft without a condition
+        c = CrafterUseCase(self.inv, self.rb, [])
+        self.assertFalse(c.craft(req).success)
+        # try to craft without items
+        c = CrafterUseCase(
+                ItemStorage([i3]),
+                self.rb,
+                [ALCHEMY]
+                )
+        self.assertFalse(c.craft(req).success)
 
     def test_add_alchemy_solutions_recipes(self):
         # NOTE: may be an insufficient check?
@@ -145,3 +155,15 @@ class TestCrafter(unittest.TestCase):
         resp = c.get_recipes(req)
         self.assertTrue(resp.success)
         self.assertEqual(len(resp.data), 10)
+
+    def test_add_condition(self):
+        # NOTE: also depends on method CrafterUseCase.craft
+        c = CrafterUseCase(self.inv, self.rb, [])
+        # add condition
+        req = CrafterRequest(ALCHEMY.name)
+        self.assertTrue(c.add_condition(req).success)
+        # try to add it again
+        self.assertFalse(c.add_condition(req).success)
+        # craft item which requires that condition
+        req = CrafterRequest(i2.name, 1)
+        self.assertTrue(c.craft(req).success)
