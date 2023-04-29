@@ -21,7 +21,8 @@ class JsonItemLoader(ItemLoaderUseCase):
     def load_part(self, item_type: str, items):
         for i in items:
             i['type'] = item_type
-            self.items.append(self.Item_from_dict(i))
+            for count in range(i.get('count', 1)):
+                self.items.append(self.Item_from_dict(i))
 
 
 class JsonRecipeLoader(RecipeLoaderUseCase):

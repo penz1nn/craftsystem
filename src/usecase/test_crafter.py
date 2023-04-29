@@ -167,3 +167,52 @@ class TestCrafter(unittest.TestCase):
         # craft item which requires that condition
         req = CrafterRequest(i2.name, 1)
         self.assertTrue(c.craft(req).success)
+
+    def test_search_recipe(self):
+        leather_strips_item = Item('Leather strips')
+        recipe = Recipe(
+                items=[leather_strips_item]*4,
+                ingredients=[i3],
+                conditions=[c1]
+                )
+        wolf_pelt = Item('Wolf pelt')
+        recipe2 = Recipe(
+                items=[i3],
+                ingredients=[wolf_pelt],
+                conditions=[c1]
+                )
+        wolf_pelt_fine = Item('Wolf pelt (fine)')
+        recipe3 = Recipe(
+                items=[wolf_pelt]*2,
+                ingredients=[wolf_pelt_fine],
+                conditions=[c1]
+                )
+        recipe4 = Recipe(
+                items=[Item('Iron dagger')],
+                ingredients=[leather_strips_item, Item('Iron ingot')],
+                conditions=[]
+                )
+        inv = ItemStorage([wolf_pelt_fine])
+        rb = RecipeStorage([recipe, recipe2, recipe3, recipe4])
+        c = CrafterUseCase(inv, rb, [c1])
+        req = CrafterRequest(leather_strips_item.name)
+        resp = c.search_recipe(req)
+        print('\n')
+        print_lists(resp.data)
+        print(resp.data)
+        print('\n\n\n')
+
+        inv = ItemStorage([wolf_pelt_fine])
+        rb = RecipeStorage([recipe, recipe2, recipe4])
+        c = CrafterUseCase(inv, rb, [c1])
+        req = CrafterRequest('Iron dagger')
+        resp = c.search_recipe(req)
+        print_lists(resp.data)
+
+
+def print_lists(obj):
+    if isinstance(obj, list):
+        for o in obj:
+            print_lists(o)
+    else:
+        print(str(obj))

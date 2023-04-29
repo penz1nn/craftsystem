@@ -1,3 +1,4 @@
+from copy import copy
 from typing import List
 
 from ..domain.item import Item, ItemStorage
@@ -97,7 +98,6 @@ class CrafterUseCase:
         else:
             return CrafterResponse(False)
 
-
     def show_inventory(self) -> CrafterResponse:
         d = Item.MakeDict(self.inventory.items_list())
         d_out = {}
@@ -153,3 +153,52 @@ class CrafterUseCase:
         for i in r.items:
             self.inventory.add_item(i)
         return CrafterResponse(r.items)
+
+    def search_recipe(self, req: CrafterRequest) -> CrafterResponse:
+        result = self.search_recipe_recursive(req.item_name)
+        if result:
+            return CrafterResponse(result['recipes_out'])
+        else:
+            return CrafterResponse(False)
+
+    def search_recipe_recursive(self, item_name: str):
+        subcrafter = CrafterUseCase(
+                copy(self.inventory),
+                self.recipe_book,
+                self.conditions
+                )
+        # first look if we can craft item right away
+        easy = False
+        recipes = subcrafter.recipes(item_name)
+        recipes_out = []
+        for index, recipe in enumerate(recipes):
+            can_craft = True
+            requirements = recipe.ingredients_dict()
+            for ingredient, required_count in requirements.items():
+                if subcrafter.item_count(ingredient) < required_count:
+                    can_craft = False
+                    break
+            if can_craft:
+                easy = True
+                req = CrafterRequest(item_name, index)
+                subcrafter.craft(req)
+                recipes_out.append(recipe)
+        if easy:
+            return {'subcrafter': subcrafter, 'recipes_out': recipes_out}
+        # try to craft all requirements first
+        else:
+            for recipe in recipes:
+                can_craft_all = True
+                for ingredient in recipe.ingredients:
+                    recursion_result = subcrafter.search_recipe_recursive(ingredient.name)
+                    if recursion_result['recipes_out'] != []:
+                        subcrafter = recursion_result['subcrafter']
+                        #recipes_out.append(recipe)
+                        recipes_out.append(recursion_result['recipes_out'])
+                    else:
+                        can_craft_all = False
+                        recipes_out = []
+                        break
+                if can_craft_all:
+                    recipes_out.append(recipe)
+        return {'subcrafter': subcrafter, 'recipes_out': recipes_out}

@@ -48,6 +48,9 @@ class MemoryRecipeStorage(RecipeStorage):
                 self.storage.append(recipe)
 
     def add_recipe(self, r: Recipe) -> bool:
+        """
+        add recipe if it's not saved already and return True, else return False
+        """
         if r in self.storage:
             return False
         else:
