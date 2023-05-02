@@ -197,22 +197,15 @@ class TestCrafter(unittest.TestCase):
         c = CrafterUseCase(inv, rb, [c1])
         req = CrafterRequest(leather_strips_item.name)
         resp = c.search_recipe(req)
-        print('\n')
-        print_lists(resp.data)
-        print(resp.data)
-        print('\n\n\n')
+        self.assertEqual(len(resp.data), 3)
+        for r in [recipe, recipe2, recipe3]:
+            self.assertTrue(r in resp.data)
 
+        # test when it's not possible to craft target item
         inv = ItemStorage([wolf_pelt_fine])
         rb = RecipeStorage([recipe, recipe2, recipe4])
         c = CrafterUseCase(inv, rb, [c1])
         req = CrafterRequest('Iron dagger')
         resp = c.search_recipe(req)
-        print_lists(resp.data)
-
-
-def print_lists(obj):
-    if isinstance(obj, list):
-        for o in obj:
-            print_lists(o)
-    else:
-        print(str(obj))
+        self.assertFalse(resp.success)
+        self.assertIsNone(resp.data)

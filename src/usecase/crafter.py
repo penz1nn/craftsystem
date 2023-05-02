@@ -3,7 +3,7 @@ from typing import List
 
 from ..domain.item import Item, ItemStorage
 from ..domain.recipe import Recipe, RecipeStorage, ProductionCondition
-from ..domain.alchemy_solutions import Archetype, AlchemySolution
+from ..domain.alchemy_solutions import AlchemySolution
 
 
 class CrafterRequest:
@@ -193,8 +193,7 @@ class CrafterUseCase:
                     recursion_result = subcrafter.search_recipe_recursive(ingredient.name)
                     if recursion_result['recipes_out'] != []:
                         subcrafter = recursion_result['subcrafter']
-                        #recipes_out.append(recipe)
-                        recipes_out.append(recursion_result['recipes_out'])
+                        recipes_out.extend(recursion_result['recipes_out'])
                     else:
                         can_craft_all = False
                         recipes_out = []
